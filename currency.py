@@ -2,79 +2,116 @@ import tkinter as tk
 from tkinter import ttk
 from currency_converter import CurrencyConverter
 
+# -----------------------------
+# App Configuration
+# -----------------------------
+APP_TITLE = "Currency Converter"
+APP_SIZE = "520x360"
+
 converter = CurrencyConverter()
 
-### Conversion Functions ###
-
-def convert_and_round(amount, exchange_rate):
-    """
-    Converts an amount from one currency to another and rounds the result.
-
-    Args:
-        amount (float): The amount to convert.
-        exchange_rate (float): The exchange rate.
-
-    Returns:
-        float: The converted and rounded amount.
-    """
-    converted_amount = amount * exchange_rate
-    return round(converted_amount, 2)
-
-
+# -----------------------------
+# Conversion Logic
+# -----------------------------
 def convert_currency():
     try:
-        amount = float(entry_amount.get())
-        from_currency = combo_from_currency.get()
-        to_currency = combo_to_currency.get()
+        amount = float(amount_entry.get())
+        from_currency = from_currency_combo.get()
+        to_currency = to_currency_combo.get()
 
-        ### Convert using CurrencyConverter ###
+        if not from_currency or not to_currency:
+            raise ValueError("Please select both currencies.")
+
         result = converter.convert(amount, from_currency, to_currency)
-
-        ### Round result to 2 decimal places ###
-        rounded_result = round(result, 2)
-
-        label_result.config(
-            text=f"{amount} {from_currency} = {rounded_result} {to_currency}"
+        result_label.config(
+            text=f"{amount:.2f} {from_currency} = {result:.2f} {to_currency}",
+            foreground="green"
         )
-    except ValueError:
-        label_result.config(text="Please enter a valid number.")
-    except Exception as e:
-        label_result.config(text=f"Error: {e}")
+
+    except ValueError as e:
+        result_label.config(text=str(e), foreground="red")
+    except Exception:
+        result_label.config(text="Conversion failed. Try again.", foreground="red")
 
 
-### GUI Setup ###
-
+# -----------------------------
+# GUI Setup
+# -----------------------------
 root = tk.Tk()
-root.geometry("800x420")
-root.title("Currency Converter")
+root.title(APP_TITLE)
+root.geometry(APP_SIZE)
+root.resizable(False, False)
 
-### Labels ###
+style = ttk.Style()
+style.theme_use("clam")
 
-label_heading = tk.Label(root, text="SKA", font="Times 25 bold")
-label_from_currency = tk.Label(root, text="First Currency:", font="Times 18 bold")
-label_to_currency = tk.Label(root, text="Second Currency:", font="Times 18 bold")
-label_amount = tk.Label(root, text="Amount:", font="Times 18 bold")
-label_result = tk.Label(root, text="Result:", font="Times 18 bold")
+# -----------------------------
+# Main Frame
+# -----------------------------
+main_frame = ttk.Frame(root, padding=20)
+main_frame.pack(expand=True)
 
-### Input Fields ###
+# -----------------------------
+# Title
+# -----------------------------
+title_label = ttk.Label(
+    main_frame,
+    text="💱 Currency Converter",
+    font=("Segoe UI", 22, "bold")
+)
+title_label.pack(pady=(0, 20))
 
-entry_amount = tk.Entry(root)
-available_currencies = converter.currencies
-currency_list = sorted(list(available_currencies))  # sorted for better UI
-combo_from_currency = ttk.Combobox(root, values=currency_list)
-combo_to_currency = ttk.Combobox(root, values=currency_list)
-convert_button = tk.Button(root, text="Convert", command=convert_currency)
+# -----------------------------
+# Currency Selection
+# -----------------------------
+available_currencies = sorted(converter.currencies)
 
-### Layout ###
+from_currency_combo = ttk.Combobox(
+    main_frame, values=available_currencies, state="readonly", width=15
+)
+to_currency_combo = ttk.Combobox(
+    main_frame, values=available_currencies, state="readonly", width=15
+)
 
-label_heading.pack(pady=10)
-label_from_currency.pack()
-combo_from_currency.pack()
-label_to_currency.pack()
-combo_to_currency.pack()
-label_amount.pack()
-entry_amount.pack()
-convert_button.pack(pady=10)
-label_result.pack(pady=10)
+from_currency_combo.set("USD")
+to_currency_combo.set("EUR")
+
+currency_frame = ttk.Frame(main_frame)
+currency_frame.pack(pady=10)
+
+ttk.Label(currency_frame, text="From").grid(row=0, column=0, padx=10)
+ttk.Label(currency_frame, text="To").grid(row=0, column=1, padx=10)
+
+from_currency_combo.grid(row=1, column=0, padx=10)
+to_currency_combo.grid(row=1, column=1, padx=10)
+
+# -----------------------------
+# Amount Entry
+# -----------------------------
+ttk.Label(main_frame, text="Amount").pack(pady=(15, 5))
+
+amount_entry = ttk.Entry(main_frame, width=25)
+amount_entry.pack()
+amount_entry.focus()
+
+# -----------------------------
+# Convert Button
+# -----------------------------
+convert_button = ttk.Button(
+    main_frame,
+    text="Convert",
+    command=convert_currency
+)
+convert_button.pack(pady=20)
+
+# -----------------------------
+# Result
+# -----------------------------
+result_label = ttk.Label(
+    main_frame,
+    text="Enter an amount and select currencies",
+    font=("Segoe UI", 12)
+)
+result_label.pack()
 
 root.mainloop()
