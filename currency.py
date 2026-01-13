@@ -64,26 +64,27 @@ title_label.pack(pady=(0, 20))
 # -----------------------------
 # Currency Selection
 # -----------------------------
+currency_frame = ttk.Frame(main_frame)
+currency_frame.pack(pady=10)
+
 available_currencies = sorted(converter.currencies)
 
 from_currency_combo = ttk.Combobox(
-    main_frame, values=available_currencies, state="readonly", width=15
+    currency_frame, values=available_currencies, state="readonly", width=15
 )
 to_currency_combo = ttk.Combobox(
-    main_frame, values=available_currencies, state="readonly", width=15
+    currency_frame, values=available_currencies, state="readonly", width=15
 )
 
 from_currency_combo.set("USD")
 to_currency_combo.set("EUR")
 
-currency_frame = ttk.Frame(main_frame)
-currency_frame.pack(pady=10)
-
-ttk.Label(currency_frame, text="From").grid(row=0, column=0, padx=10)
-ttk.Label(currency_frame, text="To").grid(row=0, column=1, padx=10)
+ttk.Label(currency_frame, text="From").grid(row=0, column=0, padx=10, pady=5)
+ttk.Label(currency_frame, text="To").grid(row=0, column=1, padx=10, pady=5)
 
 from_currency_combo.grid(row=1, column=0, padx=10)
 to_currency_combo.grid(row=1, column=1, padx=10)
+
 
 # -----------------------------
 # Amount Entry
@@ -115,3 +116,4 @@ result_label = ttk.Label(
 result_label.pack()
 
 root.mainloop()
+
